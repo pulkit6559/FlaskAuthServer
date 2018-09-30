@@ -17,7 +17,7 @@ class ItemModel(db.Model):
 
     @classmethod
     def find_by_name(cls, name):
-        return ItemModel.query.filter_by(name=name)
+        return ItemModel.query.filter_by(name=name).first()#.filter_by(id=1)
      
     @classmethod
     def insert(cls, item):
