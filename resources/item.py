@@ -27,22 +27,16 @@ class Item(Resource):
         item = {'name': name, 'price': data['price']}
 
         try:
-            ItemModel.insert(item)
+            ItemModel.save_to_db(item)
         except:
             return {"message": 'An error occoured while inserting'}
         return item, 500 #internal server error
 
     @jwt_required()
     def delete(self, name):
-        connection = sqlite3.connect('data.db')
-        cursor = connection.cursor()
-
-        query = "DELETE FROM items WHERE name=?"
-        cursor.execute(query, (name,))
-
-        connection.commit()
-        connection.close()
-        return {'message': 'Item deleted'}
+        item = ItemModel.find_by_name(name)
+        if item:
+            item.delete()
 
     @jwt_required()
     def put(self, name):
@@ -52,17 +46,14 @@ class Item(Resource):
         updated_item = {'name': name, 'price': data['price']}
         
         if item is None:
+            item = ItemModel(name, data['price'])
+            else:
             try:
-                ItemModel.insert(updated_item)
-            except:
-                return {"message": "error occoured while inserting"}, 500
-        else:
-            try:
-                ItemModel.update(updated_item)
+                item.price = data['price']
             except:
                 return {"message": "error occoured while updating"}, 500
-
-        return updated_item
+        item.save_to_db()
+        return item.json()
 
 
 
